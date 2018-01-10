@@ -39,14 +39,19 @@ namespace Civilization_VI_Workshop
 
             if (HaveNewTags())
             {
-                Console.ReadLine();
+                Console.WriteLine("\n\nPress any key to exit...");
+                Console.ReadKey();
                 return;
             };
 
-            if(CopyToDestitional())
+            if (CopyToDestitional())
+            {
                 CheckLocalizedText();
+                CreateListsFileForMod();
+            }
 
-            Console.ReadLine();
+            Console.WriteLine("\n\nPress any key to exit...");
+            Console.ReadKey();
         }
 
         private void ScanTags()
@@ -206,6 +211,16 @@ namespace Civilization_VI_Workshop
             }
 
             Console.WriteLine(" Done");
+        }
+
+        private void CreateListsFileForMod()
+        {
+            Console.WriteLine("\n\nList Files for ModInfo");
+
+            foreach (string item in listsFile)
+            {
+                Console.WriteLine("<File>XKVNN" + item.Replace(pathScan,"").Replace(@"\", "/") + "</File>");
+            }
         }
     }
 }
