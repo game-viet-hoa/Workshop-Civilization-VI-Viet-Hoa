@@ -11,8 +11,12 @@ namespace Civilization_VI_Workshop
     {
 
         private String pathScan = @"C:\Users\XKVNN\Desktop\Civilization-VI-Viet-Hoa\Vietnamese";
+        private String pathDestitional = @"C:\Users\XKVNN\Desktop\Civilization-VI-Viet-Hoa\Workshop";
+
         string[] tagsOld = new string[] { "<GameData>", "<BaseGameText>", "<Text>", "<EnglishText>",
             "<Gender>", "<FrontEndText>", "<Plurality>", "<LocalizedText>", "<Update>" };
+        string[] tagsNeedReplace = new string[] { "BaseGameText>", "EnglishText>", "FrontEndText>" };
+        string tagReplace = "LocalizedText>";
 
         HashSet<String> tags = new HashSet<String>();
         HashSet<String> icons = new HashSet<String>();
@@ -38,6 +42,9 @@ namespace Civilization_VI_Workshop
                 Console.ReadLine();
                 return;
             };
+
+            if(CopyToDestitional())
+                CheckLocalizedText();
 
             Console.ReadLine();
         }
@@ -107,6 +114,98 @@ namespace Civilization_VI_Workshop
                 Console.WriteLine(" Haven't new Tags");
 
             return HaveNew;
+        }
+
+        private Boolean CopyToDestitional()
+        {
+            Console.WriteLine("\n\nStart copy to " + pathDestitional);
+
+            DirectoryInfo dirDestitional = new DirectoryInfo(pathDestitional);
+            try
+            {
+                if (dirDestitional.Exists)
+                    dirDestitional.Delete(true);
+
+                Directory.CreateDirectory(pathDestitional);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Can't not delete or create directory " + pathDestitional);
+                Console.WriteLine(ex);
+                return false;
+            }
+
+            foreach (string item in listsFile)
+            {
+                string[] readText = File.ReadAllLines(item);
+                
+                for(int i = 0; i < readText.Length; i++)
+                {
+                    readText[i] = readText[i].Replace("<Row", "<Replace Language='en_US'").Replace("</Row>", "</Replace>");
+
+                    foreach (string t in tagsNeedReplace)
+                        readText[i] = readText[i].Replace(t, tagReplace);
+                }
+
+                string filePath = item.Replace(pathScan, pathDestitional);
+                System.IO.FileInfo file = new System.IO.FileInfo(filePath);
+                if (!Directory.Exists(file.DirectoryName))  // if it doesn't exist, create
+                    Directory.CreateDirectory(file.DirectoryName);
+
+                File.WriteAllLines(filePath, readText);
+            }
+
+            Console.WriteLine(" Done");
+
+            return true;
+        }
+
+        private void CheckLocalizedText()
+        {
+            Console.WriteLine("\n\nStart check <LocalizedText>");
+
+            foreach (string item in listsFile)
+            {
+                string filePath = item.Replace(pathScan, pathDestitional);
+                string[] readText = File.ReadAllLines(filePath);
+
+                int count = 0;
+                foreach(string s in readText)
+                {
+                    if (s.IndexOf("<LocalizedText>") >= 0)
+                        count++;
+                }
+
+                if(count > 1)
+                {
+                    Console.WriteLine("  " + filePath.Replace(pathDestitional,"") + ": " + count);
+                    Boolean open = false;
+                    Boolean close = false;
+
+                    for (int i = 0; i < readText.Length; i++)
+                    {
+                        if (open && readText[i].IndexOf("<LocalizedText>") >= 0)
+                            readText[i] = readText[i].Replace("<LocalizedText>", "");
+
+                        if (readText[i].IndexOf("<LocalizedText>") >= 0)
+                            open = true;
+                    }
+
+                    for (int i = readText.Length - 1; i >= 0; i--)
+                    {
+                        if (close && readText[i].IndexOf("</LocalizedText>") >= 0)
+                            readText[i] = readText[i].Replace("</LocalizedText>", "");
+
+                        if (readText[i].IndexOf("</LocalizedText>") >= 0)
+                            close = true;
+                    }
+
+                    File.WriteAllLines(filePath, readText);
+                }
+                    
+            }
+
+            Console.WriteLine(" Done");
         }
     }
 }
