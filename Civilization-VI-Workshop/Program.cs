@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
 
 namespace Civilization_VI_Workshop
 {
     class Program
     {
 
-        private String pathScan = @"C:\Users\XKVNN\Desktop\Civilization-VI-Viet-Hoa\Vietnamese";
-        private String pathDestitional = @"C:\Users\XKVNN\Desktop\Civilization-VI-Viet-Hoa\Workshop";
+        private String pathScan = @"D:\Dropbox\Translation\Civilization VI\Vietnamese";
+        private String pathDestitional = @"D:\Dropbox\Translation\Civilization VI\Workshop\XKVNN";
+        private String pathModInfo = @"D:\Dropbox\Translation\Civilization VI\Workshop\XKVNN - Vietnamese Localization.modinfo";
 
         string[] tagsOld = new string[] { "<GameData>", "<BaseGameText>", "<Text>", "<EnglishText>",
             "<Gender>", "<FrontEndText>", "<Plurality>", "<LocalizedText>", "<Update>" };
@@ -48,6 +47,8 @@ namespace Civilization_VI_Workshop
             {
                 CheckLocalizedText();
                 CreateListsFileForMod();
+
+
             }
 
             Console.WriteLine("\n\nPress any key to exit...");
@@ -215,12 +216,59 @@ namespace Civilization_VI_Workshop
 
         private void CreateListsFileForMod()
         {
+            String str1 = 
+@"<?xml version=""1.0"" encoding=""utf-8""?>
+<Mod id=""08305371-1edc-4898-a77f-49f69939278b"">
+
+	<Properties>
+        <Name>Civilization VI Việt Hóa</Name>
+        <Teaser>Civilization VI Việt Hóa</Teaser>
+        <Description>LOC_DESCRIPTION</Description>
+        <Authors>Xuân Khánh - XKVNN</Authors>
+		<EnabledByDefault>1</EnabledByDefault>
+		<EnabledAtStartup>1</EnabledAtStartup>
+		<AffectsSavedGames>0</AffectsSavedGames>
+	</Properties>
+	
+	<LocalizedText>
+		<Text id=""LOC_DESCRIPTION"">
+			<en_US>Group Civilization VI Việt Hóa [COLOR_FLOAT_FOOD]https://fb.com/groups/Civilization6VietHoa[ENDCOLOR][NEWLINE][NEWLINE][ICON_GreatWriter][COLOR_RED]Việt hóa bởi:[ENDCOLOR][NEWLINE][ICON_Bullet][ICON_Capital]Xuân Khánh - XKVNN[NEWLINE][ICON_Bullet][ICON_Amenities]Group Civilization VI Việt Hóa[NEWLINE][NEWLINE][ICON_GOLD][COLOR_FLOAT_GOLD]Cảm ơn các nhà hảo tâm:[ENDCOLOR][NEWLINE][ICON_Bullet]Luxanna Crownguard[NEWLINE][ICON_Bullet]Huỳnh Thanh Tùng</en_US>
+		</Text>
+	</LocalizedText>
+	
+	<Files>";
+
+            String str2 = 
+@"	</Files>
+	
+	<FrontEndActions>
+		<UpdateText id=""FrontEndUpdateLocalization"">";
             Console.WriteLine("\n\nList Files for ModInfo");
 
+            String str3 = 
+@"		</UpdateText>
+    </FrontEndActions>
+	
+	<InGameActions>
+		<UpdateText id=""UpdateLocalization"">";
+
+            String str4 = 
+@"		</UpdateText>
+	</InGameActions>
+</Mod>";
+
+            String listOfFiles1 = "";
+            String listOfFiles2 = "";
             foreach (string item in listsFile)
             {
+                String file = "<File>XKVNN" + item.Replace(pathScan, "").Replace(@"\", "/") + "</File>";
+
+                listOfFiles1 += "		" + file + "\r\n";
+                listOfFiles2 += "			" + file + "\r\n";
                 Console.WriteLine("<File>XKVNN" + item.Replace(pathScan,"").Replace(@"\", "/") + "</File>");
             }
+
+            File.WriteAllText(pathModInfo, str1 + "\r\n" + listOfFiles1 + str2 + "\r\n" + listOfFiles2 + str3 + "\r\n" + listOfFiles2 + str4);
         }
     }
 }
